@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PDFMaster Premium Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="output.css" rel="stylesheet">
+    <style>
+        body { 
+            background-color: #0c0814; 
+            color: #ffffff; 
+            overflow-x: hidden; 
+            width: 100vw;
+            max-width: 100%;
+            scroll-behavior: smooth; 
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Smooth, lag-free Glassmorphism using only GPU accelerated properties */
+        .glass { background: rgba(15, 15, 15, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-solid { background: rgba(20, 20, 20, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        
+        /* Gradient Border Card */
+        .glass-card { background: #0c0814; backdrop-filter: blur(12px); border-radius: 1.5rem; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; position: relative; }
+        .glass-card::before { content: ""; position: absolute; inset: -2px; border-radius: 1.6rem; background: linear-gradient(135deg, #f01d78 0%, #4a25e1 50%, #00d2ff 100%); z-index: -1; opacity: 0.8; transition: opacity 0.3s; }
+        .glass-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.8); }
+        .glass-card:hover::before { opacity: 1; }
+        
+        /* Lag-free Background Orbs (using transform instead of animating filter/background) */
+        .ambient-orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; z-index: -10; pointer-events: none; animation: float-orb 15s ease-in-out infinite alternate; will-change: transform; }
+        .orb-red { background-color: #f01d78; width: 45vw; height: 45vw; top: 10%; left: -20%; }
+        .orb-blue { background-color: #4a25e1; width: 40vw; height: 40vw; bottom: 0%; right: -15%; animation-delay: -5s; }
+        @keyframes float-orb { 0% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(10vw, 15vh, 0) scale(1.2); } 100% { transform: translate3d(-5vw, 10vh, 0) scale(0.9); } }
+        
+        .floating-shape { position: absolute; filter: blur(4px); opacity: 0.15; z-index: -15; pointer-events: none; will-change: transform; animation: drift 30s linear infinite alternate; }
+        .shape-1 { width: 30vw; height: 30vw; background: linear-gradient(45deg, #f01d78, transparent); border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; top: 20%; left: 10%; animation-duration: 35s; }
+        .shape-2 { width: 35vw; height: 35vw; background: linear-gradient(-45deg, #00d2ff, transparent); border-radius: 60% 40% 30% 70% / 50% 30% 70% 50%; bottom: 10%; right: 5%; animation-duration: 45s; animation-direction: alternate-reverse; }
+        .shape-3 { width: 20vw; height: 20vw; background: linear-gradient(135deg, #4a25e1, transparent); border-radius: 50%; top: 60%; left: 30%; animation-duration: 25s; }
+        @keyframes drift { 0% { transform: translate3d(0, 0, 0) rotate(0deg); } 100% { transform: translate3d(20vw, -20vh, 0) rotate(360deg); } }
+        
+        /* Animated Colorful Buttons */
+        .btn-animated-color { background-size: 300% 300%; background-image: linear-gradient(-45deg, #f01d78, #8a2be2, #4a25e1, #00d2ff); animation: rgb-shift 5s ease infinite; color: white; border: none; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; will-change: transform, background-position; }
+        .btn-animated-color:hover { transform: scale(1.03); box-shadow: 0 15px 30px -5px rgba(138, 43, 226, 0.6); }
+        .btn-animated-color:active { transform: scale(0.97); }
+        @keyframes rgb-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        .animated-border-box { position: relative; border-radius: 1.5rem; background: #0a0a0a; z-index: 1; width: 100%; transition: transform 0.3s ease; }
+        .animated-border-box:hover { transform: scale(1.01); }
+        .animated-border-box::before { content: ""; position: absolute; inset: -2px; border-radius: 1.6rem; background: conic-gradient(from 0deg, transparent 0%, #e5322d 25%, #ff7b72 50%, #e5322d 75%, transparent 100%); z-index: -1; animation: border-spin 4s linear infinite; opacity: 0.5; }
+        @keyframes border-spin { 100% { transform: rotate(360deg); } }
+
+        .particle { position: absolute; border-radius: 50%; background: white; opacity: 0.2; pointer-events: none; z-index: -1; animation: twinkle 4s infinite alternate ease-in-out; }
+        @keyframes twinkle { 0% { opacity: 0.1; transform: scale(0.8); } 100% { opacity: 0.5; transform: scale(1.2); } }
+        .reveal { opacity: 0; transform: translate3d(0, 30px, 0); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: opacity, transform; }
+        .reveal.active { opacity: 1; transform: translate3d(0, 0, 0); }
+        
+        .mega-menu { opacity: 0; visibility: hidden; transform: translate3d(0, 10px, 0); transition: opacity 0.3s ease, transform 0.3s ease; }
+        .nav-item:hover .mega-menu { opacity: 1; visibility: visible; transform: translate3d(0, 0, 0); }
+        #mobile-menu { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); transform: translate3d(100%, 0, 0); }
+        #mobile-menu.open { transform: translate3d(0, 0, 0); }
+        .modal-backdrop { opacity: 0; visibility: hidden; transition: opacity 0.3s ease; backdrop-filter: blur(5px); }
+        .modal-backdrop.open { opacity: 1; visibility: visible; }
+        .modal-content { transform: translate3d(0, 20px, 0) scale(0.95); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: transform; }
+        .modal-backdrop.open .modal-content { transform: translate3d(0, 0, 0) scale(1); }
+        .break-words-custom { word-wrap: break-word; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center relative overflow-x-hidden">
+
+    <!-- Background Elements (Lag Free GPU Accelerated) -->
+    <div class="ambient-orb orb-red"></div>
+    <div class="ambient-orb orb-blue"></div>
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+    <div id="particles" class="fixed inset-0 pointer-events-none z-[-1]"></div>
+
+    <!-- Header & Navbar -->
+    <header class="w-full max-w-7xl mx-auto px-4 py-3 sm:p-6 flex justify-between items-center z-50 glass sm:rounded-b-3xl mb-6 md:mb-8 sticky top-0 shadow-xl">
+        <div class="flex items-center gap-3 md:gap-4 group cursor-pointer shrink-0">
+            <!-- Premium Animated Logo Icon -->
+            <div class="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-xl btn-animated-color p-[2px] overflow-hidden group-hover:scale-110 transition-transform duration-300 shadow-[0_5px_20px_rgba(138,43,226,0.4)]">
+                <div class="absolute inset-0 bg-[#0c0814] rounded-[10px] z-0 opacity-80 group-hover:opacity-60 transition-opacity"></div>
+                <svg class="relative z-10 w-6 h-6 md:w-7 md:h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <path d="M10 13l2 2 4-4"></path>
+                </svg>
+            </div>
+            <!-- Premium Animated Logo Text -->
+            <span class="font-outfit font-black text-2xl md:text-3xl tracking-tighter text-white transition-all duration-300">
+                PDF<span class="text-transparent bg-clip-text btn-animated-color">Master</span>
+            </span>
+        </div>
+
+        <!-- Desktop Nav -->
+        <nav class="hidden lg:flex items-center gap-4 xl:gap-8 text-sm font-bold text-gray-300 h-full">
+            <a href="#upload" onclick="setTool('Merge PDF files', 'Combine PDFs in the order you want with the easiest PDF merger available.', '.pdf')" class="hover:text-white transition-colors py-4">Merge PDF</a>
+            <a href="#upload" onclick="setTool('Split PDF file', 'Separate one page or a whole set for easy conversion into independent PDF files.', '.pdf')" class="hover:text-white transition-colors py-4">Split PDF</a>
+            <a href="#upload" onclick="setTool('Compress PDF file', 'Reduce file size while optimizing for maximal PDF quality.', '.pdf')" class="hover:text-white transition-colors py-4">Compress PDF</a>
+
+            <!-- Convert PDF Mega Menu -->
+            <div class="nav-item relative py-4">
+                <button class="flex items-center gap-1 hover:text-white transition-colors">Convert PDF <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6" /></svg></button>
+                <div class="mega-menu absolute top-full left-1/2 -translate-x-1/2 w-[450px] xl:w-[500px] glass-solid rounded-2xl p-6 shadow-2xl border border-white/10 grid grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-[10px] xl:text-xs text-gray-500 uppercase tracking-widest mb-4">Convert to PDF</h4>
+                        <ul class="space-y-3">
+                            <li><a href="#upload" onclick="setTool('Convert JPG to PDF', 'Convert JPG images to PDF in seconds.', '.pdf')" class="flex items-center gap-2 hover:text-blue-400"><span class="text-yellow-500">🖼️</span> JPG to PDF</a></li>
+                            <li><a href="#upload" onclick="setTool('Convert WORD to PDF', 'Make DOC and DOCX files easy to read by converting them to PDF.', '.pdf')" class="flex items-center gap-2 hover:text-blue-400"><span class="text-blue-500">📝</span> WORD to PDF</a></li>
+                            <li><a href="#upload" onclick="setTool('Convert POWERPOINT to PDF', 'Make PPT and PPTX slideshows easy to view by converting them to PDF.', '.pdf')" class="flex items-center gap-2 hover:text-blue-400"><span class="text-orange-500">📽️</span> POWERPOINT to PDF</a></li>
+                            <li><a href="#upload" onclick="setTool('Convert EXCEL to PDF', 'Make EXCEL spreadsheets easy to read by converting them to PDF.', '.pdf')" class="flex items-center gap-2 hover:text-blue-400"><span class="text-green-500">📊</span> EXCEL to PDF</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-[10px] xl:text-xs text-gray-500 uppercase tracking-widest mb-4">Convert from PDF</h4>
+                        <ul class="space-y-3">
+                            <li><a href="#upload" onclick="setTool('Convert PDF to JPG', 'Extract all images contained in a PDF or convert each page to a JPG.', '.jpg')" class="flex items-center gap-2 hover:text-purple-400"><span class="text-yellow-500">🖼️</span> PDF to JPG</a></li>
+                            <li><a href="#upload" onclick="setTool('Convert PDF to WORD', 'Easily convert your PDF files into easy to edit DOC and DOCX documents.', '.docx')" class="flex items-center gap-2 hover:text-purple-400"><span class="text-blue-500">📝</span> PDF to WORD</a></li>
+                            <li><a href="#upload" onclick="setTool('Convert PDF to POWERPOINT', 'Turn your PDF files into easy to edit PPT and PPTX slideshows.', '.pptx')" class="flex items-center gap-2 hover:text-purple-400"><span class="text-orange-500">📽️</span> PDF to POWERPOINT</a></li>
+                            <li><a href="#upload" onclick="setTool('Convert PDF to EXCEL', 'Pull data straight from PDFs into Excel spreadsheets in a few short seconds.', '.xlsx')" class="flex items-center gap-2 hover:text-purple-400"><span class="text-green-500">📊</span> PDF to EXCEL</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+        </nav>
+
+        <!-- Auth Buttons Desktop -->
+        <div class="hidden lg:flex items-center gap-3 xl:gap-4 shrink-0" id="auth-buttons-desktop">
+            <button onclick="openModal('login-modal')" class="text-sm font-bold text-gray-300 hover:text-white transition-colors">Log in</button>
+            <button onclick="openModal('signup-modal')" class="text-sm font-bold bg-[#e5322d] text-white px-4 xl:px-5 py-2.5 rounded-full hover:bg-[#d42d28] transition-colors shadow-lg">Sign up</button>
+        </div>
+
+        <!-- Account Option (Hidden by default) -->
+        <div class="hidden lg:flex items-center gap-3 shrink-0" id="account-option-desktop" style="display: none;">
+            <div class="flex flex-col text-right">
+                <span class="text-sm font-bold text-white" id="user-name-display">My Account</span>
+                <span class="text-xs text-green-400 font-medium">Free Plan</span>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-[#e5322d] to-rose-600 flex items-center justify-center border-2 border-white cursor-pointer hover:scale-105 transition-transform" onclick="logout()">
+                <span class="text-white font-bold text-sm" id="user-initial">U</span>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="lg:hidden text-white p-1" onclick="toggleMobileMenu()">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
+        </button>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 bg-[#050505] z-[100] flex flex-col p-6 overflow-y-auto w-full h-full">
+        <div class="flex justify-between items-center mb-8 mt-2">
+            <span class="font-outfit font-black text-2xl tracking-tight">PDF<span class="text-gray-400">Master</span></span>
+            <button onclick="toggleMobileMenu()" class="text-white p-2 bg-white/5 rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12" /></svg></button>
+        </div>
+        
+        <div class="flex flex-col gap-3 text-lg font-bold pb-6 border-b border-white/10 mb-6">
+            <a href="#upload" onclick="toggleMobileMenu(); setTool('Merge PDF files', 'Combine PDFs in the order you want with the easiest PDF merger available.', '.pdf')" class="bg-white/5 px-4 py-4 rounded-xl active:bg-white/10 transition-colors">Merge PDF</a>
+            <a href="#upload" onclick="toggleMobileMenu(); setTool('Split PDF file', 'Separate one page or a whole set for easy conversion into independent PDF files.', '.pdf')" class="bg-white/5 px-4 py-4 rounded-xl active:bg-white/10 transition-colors">Split PDF</a>
+            <a href="#upload" onclick="toggleMobileMenu(); setTool('Compress PDF file', 'Reduce file size while optimizing for maximal PDF quality.', '.pdf')" class="bg-white/5 px-4 py-4 rounded-xl active:bg-white/10 transition-colors">Compress PDF</a>
+        </div>
+
+        <!-- Convert PDF Accordion -->
+        <div class="flex flex-col gap-3 mb-6 border-b border-white/10 pb-6">
+            <button onclick="toggleMobileSubmenu('mob-convert-menu', 'mob-convert-icon')" class="flex justify-between items-center w-full px-4 py-2 font-bold text-lg">
+                <span>Convert PDF</span>
+                <svg id="mob-convert-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="transition-transform duration-300"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div id="mob-convert-menu" class="hidden flex-col gap-4 pl-4 mt-2">
+                <div class="text-xs text-gray-500 uppercase tracking-widest mt-2">Convert to PDF</div>
+                <a href="#upload" onclick="toggleMobileMenu(); setTool('Convert JPG to PDF', 'Convert JPG images to PDF in seconds.', '.pdf')" class="text-base text-gray-300 py-1">JPG to PDF</a>
+                <a href="#upload" onclick="toggleMobileMenu(); setTool('Convert WORD to PDF', 'Make DOC and DOCX files easy to read by converting them to PDF.', '.pdf')" class="text-base text-gray-300 py-1">WORD to PDF</a>
+                <a href="#upload" onclick="toggleMobileMenu(); setTool('Convert POWERPOINT to PDF', 'Make PPT and PPTX slideshows easy to view by converting them to PDF.', '.pdf')" class="text-base text-gray-300 py-1">POWERPOINT to PDF</a>
+                <a href="#upload" onclick="toggleMobileMenu(); setTool('Convert EXCEL to PDF', 'Make EXCEL spreadsheets easy to read by converting them to PDF.', '.pdf')" class="text-base text-gray-300 py-1">EXCEL to PDF</a>
+                
+                <div class="text-xs text-gray-500 uppercase tracking-widest mt-4">Convert from PDF</div>
+                <a href="#upload" onclick="toggleMobileMenu(); setTool('Convert PDF to JPG', 'Extract all images contained in a PDF or convert each page to a JPG.', '.jpg')" class="text-base text-gray-300 py-1">PDF to JPG</a>
+                <a href="#upload" onclick="toggleMobileMenu(); setTool('Convert PDF to WORD', 'Easily convert your PDF files into easy to edit DOC and DOCX documents.', '.docx')" class="text-base text-gray-300 py-1">PDF to WORD</a>
+                <a href="#upload" onclick="toggleMobileMenu(); setTool('Convert PDF to POWERPOINT', 'Turn your PDF files into easy to edit PPT and PPTX slideshows.', '.pptx')" class="text-base text-gray-300 py-1">PDF to POWERPOINT</a>
+                <a href="#upload" onclick="toggleMobileMenu(); setTool('Convert PDF to EXCEL', 'Pull data straight from PDFs into Excel spreadsheets in a few short seconds.', '.xlsx')" class="text-base text-gray-300 py-1">PDF to EXCEL</a>
+            </div>
+        </div>
+
+
+
+        <div class="mt-auto pt-4 flex flex-col gap-4 pb-4" id="auth-buttons-mobile">
+            <button onclick="openModal('login-modal'); toggleMobileMenu();" class="w-full py-4 glass rounded-full font-bold">Log in</button>
+            <button onclick="openModal('signup-modal'); toggleMobileMenu();" class="w-full py-4 bg-[#e5322d] text-white rounded-full font-bold">Sign up</button>
+        </div>
+        <div class="mt-auto pt-8 flex flex-col items-center gap-4 pb-4" id="account-option-mobile" style="display: none;">
+            <div class="w-20 h-20 rounded-full bg-gradient-to-r from-[#e5322d] to-rose-600 flex items-center justify-center border-4 border-white mb-2 shadow-xl">
+                <span class="text-white font-bold text-3xl">U</span>
+            </div>
+            <span class="text-2xl font-bold text-white">My Account</span>
+            <span class="text-sm text-green-400 font-medium">Free Plan</span>
+            <button onclick="logout(); toggleMobileMenu();" class="w-full py-4 glass rounded-full font-bold text-red-400 mt-6">Log Out</button>
+        </div>
+    </div>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 flex flex-col items-center justify-center overflow-hidden pb-12">
+        
+        <!-- Main Upload Section -->
+        <section id="upload" class="w-full max-w-4xl reveal active relative flex flex-col justify-center">
+            
+            <div class="text-center mb-8 md:mb-12 px-2 flex flex-col items-center">
+                <h1 class="text-4xl sm:text-5xl md:text-6xl font-black font-outfit mb-4 text-white break-words-custom leading-tight" id="upload-main-title">Merge PDF files</h1>
+                <p class="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed" id="upload-sub-title">Combine PDFs in the order you want with the easiest PDF merger available.</p>
+            </div>
+
+            <!-- Format Selector (Hidden logic) -->
+            <select id="target-format" class="hidden">
+                <option value=".pdf">PDF Document (.pdf)</option>
+                <option value=".docx">Word Document (.docx)</option>
+                <option value=".xlsx">Excel Spreadsheet (.xlsx)</option>
+                <option value=".pptx">PowerPoint (.pptx)</option>
+                <option value=".jpg">JPEG Image (.jpg)</option>
+            </select>
+
+            <!-- Massive Red Button Uploader Container -->
+            <div class="w-full px-2 sm:px-0" id="uploader-container">
+                <div class="glass-card">
+                    <div id="drop-zone" class="bg-[#0c0814] rounded-[1.4rem] p-6 sm:p-10 md:p-20 lg:p-24 text-center relative overflow-hidden group h-full w-full transition-all duration-300">
+                        
+                        <input type="file" id="file-input" class="hidden">
+                        
+                        <div class="relative z-10 w-full h-full flex flex-col items-center justify-center">
+                            <div class="flex flex-col md:flex-row items-center justify-center gap-4 w-full">
+                                
+                                <!-- Main Huge Button -->
+                                <label for="file-input" id="main-upload-btn" class="cursor-pointer btn-animated-color w-full sm:w-auto px-4 py-5 sm:px-10 sm:py-6 md:px-16 md:py-8 rounded-xl text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold flex items-center justify-center whitespace-nowrap shadow-[0_10px_30px_rgba(74,37,225,0.4)]">
+                                    Select PDF files
+                                </label>
+                                
+                            </div>
+
+                            <!-- Dynamic Tool Options Container -->
+                            <div id="tool-options-container" class="hidden mt-8 w-full max-w-sm mx-auto z-20 relative">
+                                <!-- Password Option -->
+                                <div id="password-option" class="hidden flex flex-col gap-2">
+                                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest text-left ml-1">Document Password</label>
+                                    <input type="password" id="tool-password" class="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#e5322d] focus:bg-[#1a1a1a] outline-none transition-colors" placeholder="Enter password required for processing..." onclick="event.stopPropagation();">
+                                </div>
+                                <!-- Range Option (Split/Extract) -->
+                                <div id="range-option" class="hidden flex flex-col gap-2">
+                                    <label class="text-xs font-bold text-gray-400 uppercase tracking-widest text-left ml-1">Page Range</label>
+                                    <input type="text" id="tool-range" class="w-full bg-[#151515] border border-white/10 rounded-xl px-4 py-3 text-white focus:border-[#e5322d] focus:bg-[#1a1a1a] outline-none transition-colors" placeholder="e.g. 1-5, 8, 11-13" onclick="event.stopPropagation();">
+                                </div>
+                            </div>
+
+                            <p id="drop-text" class="text-sm md:text-base text-gray-500 mt-8 md:mt-12 font-medium tracking-wide">or drop PDFs here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Section -->
+            <div id="progress-section" class="hidden glass-card rounded-[1.4rem] p-6 sm:p-10 flex flex-col items-center mt-6 mx-2 sm:mx-0">
+                <h3 class="font-outfit font-bold text-xl md:text-2xl mb-2 text-transparent bg-clip-text bg-gradient-to-r from-[#00d2ff] to-[#4a25e1] text-center" id="status-text">Processing locally...</h3>
+                <p id="file-name" class="text-gray-400 mb-6 text-xs sm:text-sm font-mono bg-[#111] px-3 py-1.5 rounded-full border border-white/5 text-center break-all w-full max-w-md overflow-hidden text-ellipsis whitespace-nowrap"></p>
+                <div class="w-full max-w-md bg-[#111] rounded-full h-3 sm:h-4 mb-6 overflow-hidden border border-white/5 shadow-inner relative">
+                    <div id="progress-bar" class="btn-animated-color h-full rounded-full transition-all duration-300 relative overflow-hidden" style="width: 0%">
+                        <div class="absolute inset-0 bg-white/20 animate-pulse w-full h-full"></div>
+                    </div>
+                </div>
+                
+                <!-- Quick Download Option -->
+                <div id="download-section" class="hidden flex flex-col items-center w-full max-w-md mt-4">
+                    <button onclick="downloadFile()" class="w-full py-4 sm:py-5 btn-animated-color text-white rounded-[1.5rem] text-lg sm:text-xl font-black flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(74,37,225,0.4)]">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-5 h-5 sm:w-6 sm:h-6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                        Download Processed File
+                    </button>
+                    <button onclick="resetUploader()" class="mt-6 text-sm font-medium text-gray-500 hover:text-white underline p-2 transition-colors">Process another file</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="w-full border-t border-purple-500/20 py-10 z-10 glass mt-10 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center justify-between text-gray-500 text-sm gap-4 text-center md:text-left">
+            <div class="flex items-center justify-center md:justify-start gap-2 group cursor-pointer">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-fuchsia-500 group-hover:animate-pulse"><path d="M12 2l3 7h7l-5.5 4.5 2 7-6-5-6 5 2-7-5.5-4.5h7z" /></svg>
+                <span class="font-outfit font-bold text-white tracking-wider">PDF<span class="text-[#4facfe]">Master</span></span>
+            </div>
+            <p class="leading-relaxed px-2">© 2026 PDFMaster Processing. Engineered with neural precision. Designed by <a href="https://fxstar96k.netlify.app/" target="_blank" rel="noopener noreferrer" class="text-fuchsia-400 hover:text-fuchsia-300 font-bold transition-colors whitespace-nowrap">fxstar96k</a></p>
+        </div>
+    </footer>
+
+    <!-- Modals (Login / Signup) -->
+    <div id="login-modal" class="modal-backdrop fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4">
+        <div class="modal-content w-full max-w-md bg-[#0f0f0f] rounded-[2rem] p-6 sm:p-8 border border-[#4facfe]/20 shadow-2xl relative">
+            <button onclick="closeModal('login-modal')" class="absolute top-5 right-5 text-gray-500 hover:text-white bg-white/5 p-2 rounded-full transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12" /></svg></button>
+            <h2 class="text-2xl sm:text-3xl font-black font-outfit mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">Welcome back</h2>
+            <p class="text-sm text-gray-400 mb-8">Log in to access your neural network workspace.</p>
+            <form onsubmit="handleAuth(event, 'login')">
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Email</label>
+                    <input type="email" id="login-email" required class="w-full bg-[#151515] border border-white/5 rounded-xl px-4 py-3 sm:py-4 text-white focus:border-[#4facfe] focus:bg-[#1a1a1a] outline-none transition-colors" placeholder="you@example.com">
+                </div>
+                <div class="mb-8">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Password</label>
+                    <input type="password" required class="w-full bg-[#151515] border border-white/5 rounded-xl px-4 py-3 sm:py-4 text-white focus:border-[#4facfe] focus:bg-[#1a1a1a] outline-none transition-colors" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full py-4 btn-cyber text-white rounded-xl font-bold">Initialize Login</button>
+            </form>
+            <p class="mt-6 text-center text-sm text-gray-500">Don't have an account? <a href="#" onclick="closeModal('login-modal'); openModal('signup-modal');" class="text-[#4facfe] hover:text-[#00f2fe] font-bold">Sign up</a></p>
+        </div>
+    </div>
+
+    <div id="signup-modal" class="modal-backdrop fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4">
+        <div class="modal-content w-full max-w-md bg-[#0f0f0f] rounded-[2rem] p-6 sm:p-8 border border-[#f093fb]/20 shadow-2xl relative">
+            <button onclick="closeModal('signup-modal')" class="absolute top-5 right-5 text-gray-500 hover:text-white bg-white/5 p-2 rounded-full transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12" /></svg></button>
+            <h2 class="text-2xl sm:text-3xl font-black font-outfit mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">Create Account</h2>
+            <p class="text-sm text-gray-400 mb-8">Join the ultimate AI-driven PDF workspace.</p>
+            <form onsubmit="handleAuth(event, 'signup')">
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Full Name</label>
+                    <input type="text" id="signup-name" required class="w-full bg-[#151515] border border-white/5 rounded-xl px-4 py-3 text-white focus:border-[#f093fb] focus:bg-[#1a1a1a] outline-none transition-colors" placeholder="John Doe">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Email</label>
+                    <input type="email" required class="w-full bg-[#151515] border border-white/5 rounded-xl px-4 py-3 text-white focus:border-[#f093fb] focus:bg-[#1a1a1a] outline-none transition-colors" placeholder="you@example.com">
+                </div>
+                <div class="mb-8">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Password</label>
+                    <input type="password" required class="w-full bg-[#151515] border border-white/5 rounded-xl px-4 py-3 text-white focus:border-[#f093fb] focus:bg-[#1a1a1a] outline-none transition-colors" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full py-4 btn-cyber text-white rounded-xl font-bold">Register Profile</button>
+            </form>
+            <p class="mt-6 text-center text-sm text-gray-500">Already have an account? <a href="#" onclick="closeModal('signup-modal'); openModal('login-modal');" class="text-white hover:text-gray-300 font-bold">Log in</a></p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function setTool(title, subtitle, extension) {
+            document.getElementById('upload-main-title').innerText = title;
+            document.getElementById('upload-sub-title').innerText = subtitle;
+            if(extension) {
+                document.getElementById('target-format').value = extension;
+            }
+            
+            const btn = document.getElementById('main-upload-btn');
+            const fileInput = document.getElementById('file-input');
+            const dropText = document.getElementById('drop-text');
+            
+            if (btn && fileInput && dropText) {
+                if (title.includes('JPG to PDF')) {
+                    btn.innerText = 'Select JPG images';
+                    fileInput.accept = '.jpg,.jpeg,.png';
+                    dropText.innerText = 'or drop images here';
+                } else if (title.includes('WORD to PDF')) {
+                    btn.innerText = 'Select WORD files';
+                    fileInput.accept = '.doc,.docx';
+                    dropText.innerText = 'or drop WORD files here';
+                } else if (title.includes('POWERPOINT to PDF')) {
+                    btn.innerText = 'Select POWERPOINT files';
+                    fileInput.accept = '.ppt,.pptx';
+                    dropText.innerText = 'or drop POWERPOINT files here';
+                } else if (title.includes('EXCEL to PDF')) {
+                    btn.innerText = 'Select EXCEL files';
+                    fileInput.accept = '.xls,.xlsx';
+                    dropText.innerText = 'or drop EXCEL files here';
+                } else {
+                    btn.innerText = 'Select PDF files';
+                    fileInput.accept = '.pdf';
+                    dropText.innerText = 'or drop PDFs here';
+                }
+            }
+            
+            const toolOptionsContainer = document.getElementById('tool-options-container');
+            const passwordOption = document.getElementById('password-option');
+            const rangeOption = document.getElementById('range-option');
+            
+            if (toolOptionsContainer && passwordOption && rangeOption) {
+                toolOptionsContainer.classList.add('hidden');
+                passwordOption.classList.add('hidden');
+                rangeOption.classList.add('hidden');
+                
+                if (title.includes('Protect') || title.includes('Unlock')) {
+                    toolOptionsContainer.classList.remove('hidden');
+                    passwordOption.classList.remove('hidden');
+                } else if (title.includes('Split') || title.includes('Extract')) {
+                    toolOptionsContainer.classList.remove('hidden');
+                    rangeOption.classList.remove('hidden');
+                }
+            }
+            
+            if (typeof resetUploader === 'function') resetUploader();
+            document.activeElement.blur();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('open');
+            document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : 'auto';
+        }
+
+        function toggleMobileSubmenu(menuId, iconId) {
+            const menu = document.getElementById(menuId);
+            const icon = document.getElementById(iconId);
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+        function handleAuth(event, type) {
+            event.preventDefault();
+            const name = type === 'signup' ? document.getElementById('signup-name').value : document.getElementById('login-email').value.split('@')[0];
+            const initial = name.charAt(0).toUpperCase();
+
+            closeModal('login-modal');
+            closeModal('signup-modal');
+
+            document.getElementById('auth-buttons-desktop').style.display = 'none';
+            document.getElementById('auth-buttons-mobile').style.display = 'none';
+
+            document.getElementById('account-option-desktop').style.display = 'flex';
+            document.getElementById('account-option-mobile').style.display = 'flex';
+
+            document.getElementById('user-initial').innerText = initial;
+            document.getElementById('user-name-display').innerText = name.length > 10 ? name.substring(0, 10) + '...' : name;
+
+            // Small delay for better UX
+            setTimeout(() => {
+                alert(`Success! Account linked to local database simulation for ${name}.`);
+            }, 300);
+        }
+
+        function logout() {
+            document.getElementById('account-option-desktop').style.display = 'none';
+            document.getElementById('account-option-mobile').style.display = 'none';
+            document.getElementById('auth-buttons-desktop').style.display = 'flex';
+            document.getElementById('auth-buttons-mobile').style.display = 'flex';
+        }
+
+        // Background Particles
+        const particlesContainer = document.getElementById('particles');
+        if (particlesContainer) {
+            const particleCount = window.innerWidth < 768 ? 20 : 50; // Less particles on mobile
+            for (let i = 0; i < particleCount; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.width = p.style.height = `${Math.random() * 4 + 1}px`;
+                p.style.left = `${Math.random() * 100}vw`;
+                p.style.top = `${Math.random() * 100}vh`;
+                particlesContainer.appendChild(p);
+            }
+        }
+
+        // Download & Uploader Logic
+        let currentUploadedFile = null;
+        let originalFileName = "";
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const title = document.getElementById('upload-main-title').innerText;
+            const passwordInput = document.getElementById('tool-password');
+            const rangeInput = document.getElementById('tool-range');
+            
+            if ((title.includes('Protect') || title.includes('Unlock')) && passwordInput && passwordInput.value.trim() === '') {
+                alert('Please enter a password before selecting the file!');
+                passwordInput.focus();
+                document.getElementById('file-input').value = '';
+                return;
+            }
+            if ((title.includes('Split') || title.includes('Extract')) && rangeInput && rangeInput.value.trim() === '') {
+                alert('Please enter a page range before selecting the file!');
+                rangeInput.focus();
+                document.getElementById('file-input').value = '';
+                return;
+            }
+
+            simulateConversion(files[0]);
+        }
+
+        function simulateConversion(file) {
+            currentUploadedFile = file;
+            originalFileName = file.name;
+
+            document.getElementById('uploader-container').style.display = 'none';
+            document.getElementById('progress-section').classList.remove('hidden');
+            document.getElementById('download-section').classList.add('hidden');
+            document.getElementById('file-name').innerText = file.name;
+
+            let progress = 0;
+            const pb = document.getElementById('progress-bar');
+
+            const interval = setInterval(() => {
+                progress += 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    document.getElementById('status-text').innerText = "Task Finished!";
+                    setTimeout(() => document.getElementById('download-section').classList.remove('hidden'), 400);
+                }
+                pb.style.width = progress + '%';
+            }, 250);
+        }
+
+        function downloadFile() {
+            if (!currentUploadedFile) return;
+            const targetFormat = document.getElementById('target-format').value;
+            const nameWithoutExt = originalFileName.substring(0, originalFileName.lastIndexOf('.')) || originalFileName;
+            const url = URL.createObjectURL(currentUploadedFile);
+            const a = document.createElement('a');
+            a.href = url; a.download = `${nameWithoutExt}${targetFormat}`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function resetUploader() {
+            document.getElementById('uploader-container').style.display = 'block';
+            document.getElementById('progress-section').classList.add('hidden');
+            document.getElementById('progress-bar').style.width = '0%';
+        }
+
+        const dropZone = document.getElementById('drop-zone');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); }));
+        dropZone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+        document.getElementById('file-input').addEventListener('change', function () { handleFiles(this.files); });
+    </script>
+</body>
+
+</html>
